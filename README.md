@@ -22,6 +22,14 @@ igittigit get Go
 
 # Save directly to .gitignore
 igittigit get Go > .gitignore
+
+# Generate fish shell completions
+igittigit completions > ~/.config/fish/completions/igittigit.fish
+
+# Show help
+igittigit help
+igittigit --help
+igittigit -h
 ```
 
 ## Features

@@ -15,6 +15,8 @@ This installs `igittigit` to `$GOPATH/bin` and makes it globally available.
 - `igittigit list` - List all available templates
 - `igittigit search` - Interactive fuzzy search (requires fzf)
 - `igittigit get <template>` - Fetch specific template
+- `igittigit completions` - Generate fish shell completions
+- `igittigit help` / `--help` / `-h` - Show help information
 - `igittigit get Go > .gitignore` - Save to file
 
 ## Features
@@ -25,6 +27,8 @@ This installs `igittigit` to `$GOPATH/bin` and makes it globally available.
 - `fzf` integration for interactive template search
 - Smart .gitignore handling (prompts for overwrite/append when exists)
 - Graceful fallbacks when external tools unavailable
+- Fish shell completions generation
+- Help flags support (`--help`, `-h`)
 - Comprehensive test suite (28.9% coverage)
 
 ## Architecture

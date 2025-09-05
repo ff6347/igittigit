@@ -17,6 +17,8 @@ func main() {
 	command := os.Args[1]
 	
 	switch command {
+	case "--help", "-h", "help":
+		printUsage()
 	case "list":
 		handleList()
 	case "search":
@@ -29,6 +31,8 @@ func main() {
 		}
 		template := os.Args[2]
 		handleGet(template)
+	case "completions":
+		handleCompletions()
 	default:
 		fmt.Printf("Error: unknown command '%s'\n", command)
 		printUsage()
@@ -43,6 +47,7 @@ func printUsage() {
 	fmt.Println("  igittigit list              List all available templates")
 	fmt.Println("  igittigit search            Interactive fuzzy search (requires fzf)")
 	fmt.Println("  igittigit get <template>    Fetch specific template")
+	fmt.Println("  igittigit completions       Generate fish shell completions")
 	fmt.Println("")
 	fmt.Println("Examples:")
 	fmt.Println("  igittigit list")
@@ -211,4 +216,27 @@ func writeGitignore(template string, append bool) {
 		action = "Appended to"
 	}
 	fmt.Printf("%s .gitignore with %s template\n", action, template)
+}
+
+func handleCompletions() {
+	generateFishCompletions()
+}
+
+func generateFishCompletions() {
+	fmt.Print(`# Fish completions for igittigit
+# Install: igittigit completions > ~/.config/fish/completions/igittigit.fish
+
+# Complete subcommands
+complete -c igittigit -f -n "__fish_use_subcommand" -a "list" -d "List all available templates"
+complete -c igittigit -f -n "__fish_use_subcommand" -a "search" -d "Interactive fuzzy search (requires fzf)"
+complete -c igittigit -f -n "__fish_use_subcommand" -a "get" -d "Fetch specific template"
+complete -c igittigit -f -n "__fish_use_subcommand" -a "completions" -d "Generate fish shell completions"
+complete -c igittigit -f -n "__fish_use_subcommand" -a "help" -d "Show help information"
+
+# Complete help flags
+complete -c igittigit -f -s h -l help -d "Show help information"
+
+# Complete template names for 'get' command
+complete -c igittigit -f -n "__fish_seen_subcommand_from get" -a "(igittigit list 2>/dev/null)"
+`)
 }
