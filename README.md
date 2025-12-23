@@ -1,69 +1,60 @@
 # igittigit
 
-A minimal Go CLI tool for fetching .gitignore templates from GitHub's API.
+A minimal CLI for fetching .gitignore templates from GitHub's API.
+
+## Prerequisites
+
+- [Go](https://go.dev/) 1.19+ (for installation)
+- [gh](https://cli.github.com/) (optional, for authenticated GitHub API requests)
+- [fzf](https://github.com/junegunn/fzf) (optional, for `igittigit search`)
 
 ## Installation
 
+### Homebrew
+
 ```bash
-go install
+brew install ff6347/tap/igittigit
+```
+
+### Go
+
+```bash
+go install github.com/ff6347/igittigit@latest
+```
+
+### Build from source
+
+```bash
+git clone https://github.com/ff6347/igittigit.git
+cd igittigit
+go build -o igittigit
 ```
 
 ## Usage
 
 ```bash
-# List all available templates
-igittigit list
-
-# Interactive fuzzy search (requires fzf)
-igittigit search
-
-# Get a specific template
-igittigit get Go
-
-# Save directly to .gitignore
-igittigit get Go > .gitignore
-
-# Generate fish shell completions
-igittigit completions > ~/.config/fish/completions/igittigit.fish
-
-# Show help
-igittigit help
-igittigit --help
-igittigit -h
+igittigit list                 # List all available templates
+igittigit search               # Interactive fuzzy search (requires fzf)
+igittigit get Go               # Output template to stdout
+igittigit get Go > .gitignore  # Save to file
+igittigit get Go >> .gitignore # Append to existing file
+igittigit completions          # Generate fish shell completions
 ```
 
-## Features
-
-- 🚀 **Fast** - 24-hour file-based caching
-- 🔐 **Smart** - Uses `gh` CLI for authenticated requests (no rate limiting)
-- 🔍 **Interactive** - `fzf` integration for fuzzy search
-- 🛡️ **Safe** - Prompts before overwriting existing .gitignore files
-- 🧪 **Tested** - Comprehensive test suite
-- 📦 **Minimal** - Only Go standard library, no external dependencies
-
-## Requirements
-
-- Go 1.19+ for installation
-- `gh` CLI (optional, for authenticated GitHub API requests)
-- `fzf` (optional, for interactive search)
-
-## Examples
+## Development
 
 ```bash
-# Browse and select a template interactively
-igittigit search
-
-# Get multiple templates
-igittigit get Go >> .gitignore
-igittigit get Node >> .gitignore
-
-# List templates and filter
-igittigit list | grep -i python
+go test ./...      # Run tests
+go run . list      # Run from source
 ```
 
 ## How it works
 
 1. Fetches templates from GitHub's official gitignore API
 2. Caches responses locally for 24 hours in `~/.config/igittigit/`
-3. Uses `gh` CLI for authenticated requests when available
+3. Uses `gh` CLI for authenticated requests when available (avoids rate limiting)
 4. Falls back to direct HTTP requests gracefully
+
+## License
+
+MIT
