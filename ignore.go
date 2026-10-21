@@ -22,6 +22,9 @@ func parsePath(args []string) (pathOptions, error) {
 	var opts pathOptions
 	flags := true
 	for _, arg := range args {
+		if arg == "" {
+			return opts, fmt.Errorf("one nonempty literal path required")
+		}
 		if flags && strings.HasPrefix(arg, "-") {
 			switch arg {
 			case "--":
@@ -151,58 +154,15 @@ func literalRule(path string, directory, allow bool) string {
 	if allow {
 		b.WriteByte('!')
 	}
-	for _, c := range path {
-		if strings.ContainsRune("\\*?[]#! ", c) {
+	for i := 0; i < len(path); i++ {
+		c := path[i]
+		if strings.ContainsRune("\\*?[]#! ", rune(c)) {
 			b.WriteByte('\\')
 		}
-		b.WriteRune(c)
+		b.WriteByte(c)
 	}
 	if directory {
 		b.WriteByte('/')
 	}
 	return b.String()
-}
-
-func safeIgnoreFile(path string) error {
-	info, err := os.Lstat(path)
-	if os.IsNotExist(err) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-	if info.Mode()&os.ModeSymlink != 0 {
-		return fmt.Errorf("refusing symbolic link ignore file: %s", path)
-	}
-	if !info.Mode().IsRegular() {
-		return fmt.Errorf("ignore destination is not a regular file: %s", path)
-	}
-	return nil
-}
-
-func appendRule(path string, data []byte, rule string) error {
-	if err := safeIgnoreFile(path); err != nil {
-		return err
-	}
-	ending := "\n"
-	if strings.Contains(string(data), "\r\n") {
-		ending = "\r\n"
-	}
-	addition := rule + ending
-	if len(data) > 0 && data[len(data)-1] != '\n' {
-		addition = ending + addition
-	}
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return fmt.Errorf("open ignore file: %w", err)
-	}
-	_, writeErr := io.WriteString(file, addition)
-	closeErr := file.Close()
-	if writeErr != nil {
-		return fmt.Errorf("write ignore file: %w", writeErr)
-	}
-	if closeErr != nil {
-		return fmt.Errorf("close ignore file: %w", closeErr)
-	}
-	return nil
 }

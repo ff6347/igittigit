@@ -39,6 +39,9 @@ func resolveTarget(cwd, input string) (string, bool, error) {
 		}
 	}
 	target := filepath.Clean(path)
+	if strings.ContainsAny(target, "\r\n\x00") {
+		return "", false, fmt.Errorf("resolved path cannot contain line breaks or NUL")
+	}
 	directory := strings.HasSuffix(input, string(filepath.Separator))
 	info, err := os.Lstat(target)
 	if err == nil {

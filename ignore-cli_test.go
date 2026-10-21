@@ -116,7 +116,7 @@ func TestPathDispatch(t *testing.T) {
 	base := isolatedGit(t)
 	repo := repository(t, base, "repo")
 	put(t, filepath.Join(repo, ".gitignore"), "# keep\n")
-	for _, args := range [][]string{{"--bad", "x"}, {"--here"}, {"--allow"}, {"a", "b"}, {"x", "--here"}, {"--"}} {
+	for _, args := range [][]string{{"--bad", "x"}, {"--here"}, {"--allow"}, {"a", "b"}, {"", "victim"}, {"x", "--here"}, {"--"}} {
 		contains(t, cli(t, repo, "", false, args...), "Error:")
 		if got := contents(t, filepath.Join(repo, ".gitignore")); got != "# keep\n" {
 			t.Fatal(got)
