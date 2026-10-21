@@ -23,7 +23,9 @@ igittigit --here --allow ./config/example.env
 - Accept one literal filesystem path, not a gitignore pattern or a batch of paths.
 - Resolve relative paths against the shell's current working directory.
 - `--here` selects `.gitignore` in that working directory, creating it if absent.
-  It does not mean the directory named by the argument.
+  It does not mean the directory named by the argument. Allow this outside a
+  working tree, with a notice that it takes effect once the directory belongs to
+  a Git working tree; do not offer the global fallback when `--here` is supplied.
 - Without `--here`, select the closest ancestor `.gitignore` within the target's
   Git working tree. Start at the target's parent, including for directory targets:
   a directory's own `.gitignore` cannot ignore that directory itself.
@@ -69,11 +71,12 @@ Never interpret a literal absolute path as an equivalent global rule.
 - Treat global negation as subject to normal Git precedence; it cannot override a
   repository-local exclusion.
 
-**Design gate before this stage:** agree on how the user chooses the global
-pattern. A basename suggestion such as `build/` is broader than the supplied path
-and must be explicitly accepted, never silently substituted. Also confirm whether
-`--here` may create a local `.gitignore` outside a working tree; such a file only
-has an effect if that directory later belongs to a working tree.
+Suggest the target's literal basename as the global pattern, escaped using the
+same literal-name rules as local entries. Preserve the directory suffix and
+`--allow` negation where applicable. For `/some/project/build/`, suggest `build/`,
+not an absolute path or a root-anchored rule. Warn that this broader pattern
+matches across all repositories. Show both the exact pattern and destination,
+and require explicit confirmation with a default of No.
 
 ## Rule generation and writes
 
@@ -118,19 +121,21 @@ Allowing `app/config/example.env` writes:
 - Directory exceptions do not guarantee every descendant is allowed; descendant
   rules still apply.
 
-## Decisions to settle before implementation
+## Confirmed path policies
 
-The agreed interface is `--here` and `--allow`. Confirm these remaining policies
-rather than choosing them silently:
-
-1. Missing targets: require an existing path initially, or support future paths
-   with a trailing slash identifying directories?
-2. Symbolic links: operate on the named link rather than its referent, and reject
-   directory traversal through links? A link must not redirect destination writes
-   outside the selected tree. Decide how to handle a symlinked ignore file too.
-3. Global pattern selection and `--here` outside repositories, as described above.
-4. Git availability: require the Git executable for path mode, with an actionable
-   error when absent, while leaving template commands independent of it?
+- Allow nonexistent targets. A trailing `/` identifies a future directory;
+  otherwise generate a file-style rule without a trailing slash. Git can also
+  match a directory with a file-style rule; it cannot express a file-only rule.
+- For a missing target or missing parent directories, start Git discovery at the
+  closest existing ancestor directory. Do not create the target or its parents.
+- When the target itself is a symbolic link, operate on the named link, not its
+  referent. Do not follow it for repository selection or directory classification.
+- Reject target paths that traverse a symbolic-link directory, explaining that
+  the user must supply the destination's actual path.
+- Refuse to write through a symbolic-link ignore file, including for the global
+  destination. Explain the refusal without changing the link or its referent.
+- Require the Git executable for path mode, including `--here`. Give an actionable
+  error if it is absent. Template commands remain independent of Git.
 
 ## Implementation sequence
 
@@ -152,8 +157,10 @@ run it to establish the failure, implement the minimum behavior, then rerun it.
   responsibility only if needed to keep files readable.
 - Test real temporary repositories: root and nested ignore files, no ignore file,
   invocation from a different directory, nested repositories, and linked worktrees.
-- Cover `--here`, repository boundaries, cancellation, and agreed missing-path
-  and symbolic-link behavior.
+- Cover `--here` inside and outside repositories, missing targets and parent
+  directories, cancellation, missing Git, and repository boundaries.
+- Cover target links, rejected linked-directory traversal, and refused writes
+  through local or global ignore-file links. Assert no referent is modified.
 - Ensure selection and validation happen before filesystem mutation.
 
 ### 3. Append literal ignore rules
@@ -176,7 +183,8 @@ run it to establish the failure, implement the minimum behavior, then rerun it.
 
 ### 5. Add the confirmed global fallback
 
-- Implement only after the global design gate is resolved.
+- Test escaped basename suggestions, directory suffixes, `--allow`, explicit
+  consent, and the default-No prompt. Verify `--here` bypasses the fallback.
 - Test configured destinations, Git defaults, XDG paths, paths containing spaces,
   file creation after consent, rejection, EOF, and ineffective global exceptions.
 - Show using two real repositories that the accepted pattern applies to both.

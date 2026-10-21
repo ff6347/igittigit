@@ -22,3 +22,20 @@
 
 The actionable decisions and risks are captured in the plan. No separate memory
 file is needed for this planning-only session.
+
+## Operator decisions
+
+- [decision] Allow missing targets. A trailing slash identifies a directory;
+  otherwise use a file-style rule.
+- [decision] Ignore a target symbolic link itself, not its referent.
+- [decision] Refuse to write through a symbolic-link ignore file.
+- [decision] Require Git for path mode; template commands remain independent of it.
+- [decision] Allow `--here` outside repositories, with a notice about when the file
+  takes effect.
+- [decision] Outside repositories, suggest the escaped basename as a global
+  pattern, show the destination, warn about cross-repository effects, and require
+  explicit confirmation with a default of No.
+- [decision] Reject paths that traverse linked directories; ask the user to supply
+  the destination's actual path instead.
+- [decision] The questions recorded above are resolved in the plan. No executable
+  implementation is authorized by these planning decisions.
