@@ -75,7 +75,7 @@ func runPath(args []string, in io.Reader, out io.Writer) error {
 		return err
 	}
 	if root == "" && !opts.here {
-		return fmt.Errorf("no containing working tree")
+		return offerGlobal(cwd, target, directory, opts.allow, in, out)
 	}
 	if err := safeIgnoreFile(destination); err != nil {
 		return err

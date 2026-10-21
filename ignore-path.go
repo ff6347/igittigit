@@ -14,11 +14,18 @@ func resolveTarget(cwd, input string) (string, bool, error) {
 		return "", false, fmt.Errorf("path cannot contain line breaks or NUL")
 	}
 	// Inspect the supplied components before cleaning away any '..' traversal.
+	input = filepath.FromSlash(input)
+	volume := filepath.VolumeName(input)
+	if volume != "" && !filepath.IsAbs(input) {
+		return "", false, fmt.Errorf("drive-relative paths are ambiguous; supply an absolute path")
+	}
 	path := cwd
 	if filepath.IsAbs(input) {
-		path = string(filepath.Separator)
+		path = volume + string(filepath.Separator)
+	} else if strings.HasPrefix(input, string(filepath.Separator)) {
+		path = filepath.VolumeName(cwd) + string(filepath.Separator)
 	}
-	parts := strings.Split(input, string(filepath.Separator))
+	parts := strings.Split(strings.TrimPrefix(input, volume), string(filepath.Separator))
 	for i, part := range parts {
 		if part == "" || part == "." {
 			continue
@@ -34,8 +41,13 @@ func resolveTarget(cwd, input string) (string, bool, error) {
 		if err != nil {
 			return "", false, err
 		}
-		if info.Mode()&os.ModeSymlink != 0 && i < len(parts)-1 {
-			return "", false, fmt.Errorf("path traverses a symbolic link directory; supply the destination's actual path: %s", path)
+		if i < len(parts)-1 {
+			if info.Mode()&os.ModeSymlink != 0 {
+				return "", false, fmt.Errorf("path traverses a symbolic link directory; supply the destination's actual path: %s", path)
+			}
+			if !info.IsDir() {
+				return "", false, fmt.Errorf("not a directory: %s", path)
+			}
 		}
 	}
 	target := filepath.Clean(path)

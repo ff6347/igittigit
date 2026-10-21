@@ -29,6 +29,26 @@ func TestInheritedLineBreaks(t *testing.T) {
 	absent(t, filepath.Join(base, "xdg"))
 }
 
+func TestGlobalFilesystemRoot(t *testing.T) {
+	base := isolatedGit(t)
+	root := filepath.VolumeName(base) + string(filepath.Separator)
+	contains(t, cli(t, base, "yes\n", false, root), "basename")
+	absent(t, filepath.Join(base, "xdg"))
+}
+
+func TestFileDirectoryTraversal(t *testing.T) {
+	base := isolatedGit(t)
+	repo := repository(t, base, "repo")
+	put(t, filepath.Join(repo, ".gitignore"), "# keep\n")
+	put(t, filepath.Join(repo, "file"), "data")
+	for _, target := range []string{"file/", "file/.", "file/../another"} {
+		contains(t, cli(t, repo, "", false, target), "not a directory")
+	}
+	if got := contents(t, filepath.Join(repo, ".gitignore")); got != "# keep\n" {
+		t.Fatal(got)
+	}
+}
+
 func TestLiteralFilenameBytes(t *testing.T) {
 	name := "/bad\xff*"
 	if got := literalRule(name, false, false); got != "/bad\xff\\*" {
