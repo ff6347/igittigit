@@ -29,7 +29,8 @@ func gitFailure(err error, diagnostic string) error {
 func repositoryRoot(dir string) (string, error) {
 	out, diagnostic, err := gitOutput(dir, "", "rev-parse", "--show-toplevel")
 	if err != nil {
-		if strings.HasPrefix(diagnostic, "fatal: not a git repository (or any of the parent directories): .git") {
+		if strings.HasPrefix(diagnostic, "fatal: not a git repository (or any of the parent directories): .git") ||
+			strings.HasPrefix(diagnostic, "fatal: not a git repository (or any parent up to mount point ") {
 			return "", nil
 		}
 		return "", gitFailure(err, diagnostic)

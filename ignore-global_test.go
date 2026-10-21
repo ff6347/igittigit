@@ -4,6 +4,7 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -113,6 +114,17 @@ func TestGlobalSymlinkAndHere(t *testing.T) {
 	gitRun(t, base, "config", "--global", "core.excludesFile", "~/missing/ignore")
 	cli(t, base, "no\n", true, "new")
 	absent(t, filepath.Join(base, "missing"))
+}
+
+func TestFilesystemBoundaryDiscovery(t *testing.T) {
+	base := isolatedGit(t)
+	t.Setenv("GIT_DISCOVERY_ACROSS_FILESYSTEM", "0")
+	out, err := exec.Command("git", "-C", "/dev", "rev-parse", "--show-toplevel").CombinedOutput()
+	if err == nil || !strings.Contains(string(out), "Stopping at filesystem boundary") {
+		t.Skip("no /dev filesystem boundary available")
+	}
+	contains(t, cli(t, base, "no\n", true, "/dev/future"), "every repository")
+	absent(t, filepath.Join(base, "xdg"))
 }
 
 func TestGitDiscoveryErrors(t *testing.T) {
