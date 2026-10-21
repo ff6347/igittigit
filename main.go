@@ -34,9 +34,10 @@ func main() {
 	case "completions":
 		handleCompletions()
 	default:
-		fmt.Printf("Error: unknown command '%s'\n", command)
-		printUsage()
-		os.Exit(1)
+		if err := runPath(os.Args[1:], os.Stdin, os.Stdout); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	}
 }
 
