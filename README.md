@@ -1,6 +1,6 @@
 # igittigit
 
-A minimal CLI for adding literal path ignore rules and fetching .gitignore
+A CLI for adding literal path ignore rules and fetching .gitignore
 templates from GitHub's API.
 
 ## Prerequisites
@@ -54,23 +54,23 @@ igittigit -- -cache                         # Path beginning with a dash
 igittigit ./list                            # Path named like a subcommand
 ```
 
-Supply exactly one literal path, not a pattern. Quote spaces and shell
-metacharacters. Flags must precede the path. Relative paths resolve from the shell
-working directory. Missing paths are allowed without creating them; a trailing
-`/` marks a future directory. Existing directories receive directory rules.
+- Supply exactly one literal path, not a pattern.
+- Quote spaces and shell
+metacharacters.
+- Flags must precede the path.
+- Relative paths resolve from the shell
+working directory.
+- Missing paths are allowed without creating them; a trailing
+`/` marks a future directory.
+- Existing directories receive directory rules.
 
-By default, the closest ancestor `.gitignore` within the target's working tree is
-selected, starting at the target's parent even for directories. Nested repositories
-and linked worktrees have their own boundaries. If no applicable file exists,
+By default, the closest ancestor `.gitignore` within the target's working tree is selected. Nested repositories and linked worktrees have their own boundaries. If no applicable file exists,
 creation at the working-tree root requires confirmation (default **No**).
 
-`--here` selects or creates `.gitignore` in the shell working directory. The target
-must be below that directory and cannot cross a nested-repository boundary. Outside
-Git, the file takes effect once its directory belongs to a working tree.
+`--here` selects or creates `.gitignore` in the shell working directory. 
 
-Rules are escaped literally and anchored to the selected file's directory. Existing
-contents, comments, permissions, and line-ending style are preserved. A target
-symbolic link means the link itself; paths traversing linked directories are rejected
+Rules are escaped literally and anchored to the selected file's directory. 
+A target symbolic link means the link itself; paths traversing linked directories are rejected
 and require the destination's actual path. Symbolic-link ignore files, Git
 administrative paths, and names containing line breaks are refused.
 
