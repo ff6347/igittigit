@@ -53,6 +53,6 @@ homebrew_casks:
       owner: ff6347
       name: homebrew-tap
       token: "{{ .Env.BREWTAP_TOKEN }}"
-    directory: .
+    directory: Casks
     homepage: "https://github.com/ff6347/igittigit"
     description: "CLI for fetching .gitignore templates from GitHub"

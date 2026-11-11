@@ -12,25 +12,17 @@ templates from GitHub's API.
 
 ## Installation
 
-### Homebrew
-
-```bash
-brew install ff6347/tap/igittigit
-```
-
-### Go
-
-```bash
-go install github.com/ff6347/igittigit@latest
-```
-
-### Build from source
+Apple sucks: Gatekeeper can block unsigned macOS downloads. Build locally with
+Go instead; personal use needs no Apple Developer account or notarization.
 
 ```bash
 git clone https://github.com/ff6347/igittigit.git
 cd igittigit
-go build -o igittigit
+go install .
 ```
+
+Go installs the executable into `$GOBIN`, or `$(go env GOPATH)/bin` when `$GOBIN`
+is unset. Add that directory to your `PATH`.
 
 ## Usage
 
