@@ -58,7 +58,6 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BREWTAP_TOKEN: ${{ secrets.BREWTAP_TOKEN }}
 
       - name: Publish release
         run: gh release edit v${{ needs.release.outputs.version }} --draft=false

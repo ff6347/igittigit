@@ -44,15 +44,3 @@ changelog:
 release:
   draft: true
   replace_existing_artifacts: true
-
-homebrew_casks:
-  - name: igittigit
-    binaries:
-      - igittigit
-    repository:
-      owner: ff6347
-      name: homebrew-tap
-      token: "{{ .Env.BREWTAP_TOKEN }}"
-    directory: Casks
-    homepage: "https://github.com/ff6347/igittigit"
-    description: "CLI for fetching .gitignore templates from GitHub"
