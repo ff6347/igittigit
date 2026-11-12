@@ -15,6 +15,18 @@ templates from GitHub's API.
 Apple sucks: Gatekeeper can block unsigned macOS downloads. Build locally with
 Go instead; personal use needs no Apple Developer account or notarization.
 
+### Homebrew
+
+```bash
+brew update
+brew install ff6347/tap/igittigit
+```
+
+Homebrew installs Go if needed and builds `igittigit` locally from source.
+No Apple signing or notarization is required.
+
+### Go
+
 ```bash
 git clone https://github.com/ff6347/igittigit.git
 cd igittigit
